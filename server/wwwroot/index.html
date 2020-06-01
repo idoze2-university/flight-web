@@ -1,0 +1,24 @@
+<head>
+    <title>Flight Web 1.0</title>
+    <!-- JS -->
+    <script src="../../client/lib/jquery/js/jquery-3.5.1.min.js"></script>
+
+    <style>
+        div.frame {
+            width: 50%;
+            height: 50%;
+            border: solid #000 1px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="frame"></div>
+
+    <script type="text/javascript">
+        $('document').ready(function () {
+            $('div.frame').load('localhost:8000');
+        });
+    </script>
+</body>

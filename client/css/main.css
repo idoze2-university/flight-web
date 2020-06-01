@@ -1,0 +1,24 @@
+.grid-container {
+    display              : grid;
+    grid-template-columns: repeat(4, 300px);
+    grid-template-rows   : repeat(3, 300px);
+    grid-template-areas  : "Map Map Map Board""Map Map Map Board""Details Details Details Upload";
+}
+
+.grid-container #fw-map {
+    grid-area: Map;
+    background-color:red;
+}
+
+.grid-container #dw-board {
+    grid-area: Board;
+}
+
+.grid-container #fw-upload {
+    grid-area: Upload;
+}
+
+.grid-container #fw-details {
+    grid-area: Details;
+}
+
