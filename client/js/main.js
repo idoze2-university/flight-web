@@ -1,45 +1,71 @@
-var server = 'https://rony3.atwebpages.com';
-let flightList = []
+const server = 'https://rony3.atwebpages.com';
+let flightList = [];
+let selectedFlight = "";
 
-//Get all flights from server, internal and external.
-function getFlights() {
-    const time = new Date().toISOString();
-    // const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
-    const url = 'http://rony3.atwebpages.com/api/Flights?relative_to=2020-12-26T23:56:21Z&sync_all';
-    console.log(url);
-    $.getJSON(url, function (data) {
-        debugger
-        console.log(data);
-        flightList = data;
-    });
+//Get all flights from API, internal and external.
+async function getFlights() {
+	const time = new Date().toISOString();
+	// const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
+	const url = 'http://rony3.atwebpages.com/api/Flights?relative_to=2020-12-26T23:56:21Z&sync_all';
+	await $.getJSON(url, function (data) {
+		// console.log(data);
+		flightList = data;
+	}).done(function () {
+		renderFlightList();
+	});
 };
-
-function showFlightList() {
-    const ul = document.createElement("ul");
-    // ul.classList.add("exflights");
-    flightList.forEach((flight) => {
-        const li = document.createElement("li");
-        if (selectedFlightID === flight.flightID) {
-            li.classList.add('selected');
-        }
-        let curflightID = flight.flightID;
-        if (classFlightList === ".exflight-list") {
-            li.innerHTML = `${flight.flightID} - ${flight.company_name}`;
-        } else {
-            li.innerHTML = `${flight.flightID} - ${flight.company_name} <a onclick="deleteflightAfterPressingX('${curflightID}');" href="#">X</a>`;
-        }
-        li.id = flight.flightID;
-        ul.append(li);
-    });
-    $(classFlightList).append(ul);
+//Get specific details for flightplan by ID from API.
+async function getFlightPlan(id) {
+	const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
+	return await $.getJSON(url);
 }
 
-//Get specific details for flightplan
-async function getFlightPlan(id) {
-    const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
-    return await $.getJSON(url);
+//Renders the flight (in and ex) list.
+function renderFlightList() {
+	const internalList = document.createElement('ul');
+	internalList.className = "list-group";
+	const externalList = document.createElement('ul');
+	externalList.className = "list-group";
+	flightList.forEach((fl) => {
+		const item = document.createElement('li');
+		let id = fl.flight_id;
+		item.className = "fl-item list-group-item list-group-item-action";
+		item.id = "FL-" + id;
+		$(item).on('click', { ID: id }, (event) => {
+			selectFlight(event.data.ID);
+		});
+		if (fl.is_external) {
+			item.innerHTML = `${id} | ${fl.company_name}`;
+			externalList.append(item);
+		} else {
+			// item.innerHTML = `${id} | ${fl.company_name} <button type="button" class="btn btn-danger" on-click="deleteFlight(${id})">X</button>`;
+			item.innerHTML = `${id} | ${fl.company_name}`;
+			internalList.append(item);
+		}
+	});
+	if (internalList.children.length > 0) {
+		let header = document.createElement('h2');
+		header.innerHTML = "Internal Flights:";
+		$('#fw-board-in').append(header);
+		$('#fw-board-in').append(internalList);
+	}
+	if (externalList.children.length > 0) {
+		let header = document.createElement('h2'); internalList
+		header.innerHTML = "External Flights:";
+		$('#fw-board-ex').append(header);
+		$('#fw-board-ex').append(externalList);
+	}
+}
+
+function renderFlightDetails() {
+	const detailsBox = $('#fw-details');
+}
+
+function selectFlight(id) {
+	$('#FL-' + selectedFlight).removeClass('active');
+	selectedFlight = id;
+	$('#FL-' + selectedFlight).addClass('active');
 }
 
 getFlights();
-console.log(flightList);
 
