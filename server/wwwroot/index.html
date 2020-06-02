@@ -1,24 +1,42 @@
+<!DOCTYPE html>
+<html>
+
 <head>
     <title>Flight Web 1.0</title>
-    <!-- JS -->
-    <script src="../../client/lib/jquery/js/jquery-3.5.1.min.js"></script>
+    <!-- LiveJS for Debugging -->
+    <script src="http://livejs.com/live.js"></script>
 
-    <style>
-        div.frame {
-            width: 50%;
-            height: 50%;
-            border: solid #000 1px;
-        }
-    </style>
+    <!-- JS -->
+    <script src="lib/jquery/js/jquery-3.5.1.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/upload.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- CSS -->
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="css/upload.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+
+    <!-- ICON -->
+    <link rel="icon" href="common/favicon.ico">
 </head>
 
 <body>
+    <div class="container">
+        <div class="grid-container">
+            <div id="fw-map">
+            </div>
+            <div id="fw-board">
+                <div id="fw-board-in"></div>
+                <div id="fw-board-ex"></div>
+            </div>
 
-    <div class="frame"></div>
-
-    <script type="text/javascript">
-        $('document').ready(function () {
-            $('div.frame').load('localhost:8000');
-        });
-    </script>
+            <div class="upload-drop-zone" id="fw-upload">
+                Upload Flight JSON
+            </div>
+            <div id="fw-details"></div>
+        </div>
+    </div>
 </body>
+
+</html>
