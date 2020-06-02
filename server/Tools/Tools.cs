@@ -11,7 +11,7 @@ namespace FlightRadar
     {
         //Input: 2 segments
         //Output: The distance between them
-        public static double getDistance(SegmentClient s1,SegmentClient s2)
+        public static double getDistance(SegmentClient s1, SegmentClient s2)
         {
             double a = (s2.latitude - s1.latitude) * (s2.latitude - s1.latitude);
             double b = (s2.longitude - s1.longitude) * (s2.longitude - s1.longitude);
@@ -23,30 +23,29 @@ namespace FlightRadar
         //Output: Time in string format (yyyy-mm-ddThh-mm-ssZ)
         public static string ReformatDateTime(DateTime myDate)
         {
-            string date = myDate.Year.ToString() + "-";
-            if (myDate.Month < 10)
-            {
-                date += "0";
-            }
-            date += myDate.Month.ToString() + "-";
-            if (myDate.Day < 10)
-            {
-                date += "0";
-            }
-            date += myDate.Day.ToString() + "T";
-            if (myDate.Hour < 10)
-            {
-                date += "0";
-            }
-            date += myDate.Hour.ToString() + ":" + myDate.Minute.ToString() + ":" + myDate.Second.ToString() + "Z";
+            string date = PadZero(myDate.Year.ToString()) + "-";
+            date += PadZero(myDate.Month.ToString()) + "-";
+            date += PadZero(myDate.Day.ToString()) + "T";
+            date += PadZero(myDate.Hour.ToString()) + ":" + PadZero(myDate.Minute.ToString()) + ":" + PadZero(myDate.Second.ToString()) + "Z";
             return date;
+        }
+
+        public static string PadZero(string n)
+        {
+            string res = n;
+            if (res.Length < 2)
+            {
+                res = "0" + res;
+            }
+            return res;
         }
 
         //Input: Time in string format (yyyy-mm-ddThh-mm-ssZ)
         //Output: Time in Datetime format
         public static DateTime FormatDateTime(string time)
         {
-            return DateTime.ParseExact(time, "yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture).ToUniversalTime();
+            var x = DateTime.ParseExact(time, "yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture).ToUniversalTime();
+            return x;
         }
 
         //Input: Strings
