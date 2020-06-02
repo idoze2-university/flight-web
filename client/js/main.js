@@ -1,5 +1,6 @@
-const server = 'https://rony3.atwebpages.com';
+const server = 'http://rony3.atwebpages.com';
 let flightList = [];
+let flightPlans = {};
 let selectedFlight = "";
 
 //Get all flights from API, internal and external.
@@ -7,17 +8,28 @@ async function getFlights() {
 	const time = new Date().toISOString();
 	// const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
 	const url = 'http://rony3.atwebpages.com/api/Flights?relative_to=2020-12-26T23:56:21Z&sync_all';
+	console.log("getFlights(): fetching flights from " + url);
 	await $.getJSON(url, function (data) {
-		// console.log(data);
+		console.log("getFlights(): fetched " + data.length + " flights.");
 		flightList = data;
 	}).done(function () {
 		renderFlightList();
 	});
 };
+
 //Get specific details for flightplan by ID from API.
 async function getFlightPlan(id) {
-	const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
-	return await $.getJSON(url);
+	const url = server + "/api/FlightPlan/" + id;
+	console.log("getFlightPlan(): fetching plan for \'" + id + "\' from " + url);
+	await $.getJSON(url, function (data) {
+		flightPlans[id] = data;
+		console.log("getFlightPlan(): fetched plan for \'"+id+"\': "+flightPlans[id]);
+		let item = $('#FL-'+id);
+		item.removeClass('disabled');
+		$(item).on('click', { ID: id }, (event) => {
+			selectFlight(event.data.ID);
+		});
+	});
 }
 
 //Renders the flight (in and ex) list.
@@ -29,11 +41,9 @@ function renderFlightList() {
 	flightList.forEach((fl) => {
 		const item = document.createElement('li');
 		let id = fl.flight_id;
-		item.className = "fl-item list-group-item list-group-item-action";
+		getFlightPlan(id)
+		item.className = "fl-item list-group-item list-group-item-action primary disabled";
 		item.id = "FL-" + id;
-		$(item).on('click', { ID: id }, (event) => {
-			selectFlight(event.data.ID);
-		});
 		if (fl.is_external) {
 			item.innerHTML = `${id} | ${fl.company_name}`;
 			externalList.append(item);
@@ -61,10 +71,17 @@ function renderFlightDetails() {
 	const detailsBox = $('#fw-details');
 }
 
+function deSelectFlight() {
+	if (selectFlight != "") {
+		$('#FL-' + selectedFlight).removeClass('active');
+	}
+}
+
 function selectFlight(id) {
-	$('#FL-' + selectedFlight).removeClass('active');
+	deSelectFlight();
 	selectedFlight = id;
 	$('#FL-' + selectedFlight).addClass('active');
+	console.log(flightPlans[id]);
 }
 
 getFlights();
