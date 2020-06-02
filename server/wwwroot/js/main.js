@@ -1,4 +1,4 @@
-const server = 'http://rony3.atwebpages.com'; // TODO: change to local server
+const server = ''; // TODO: change to local server
 let flightList = [];
 let flightPlans = {};
 let selectedFlight = "";
