@@ -1,8 +1,6 @@
+
 const server = 'http://rony3.atwebpages.com'; // TODO: change to local server
 // const server= '';
-let flightList = [];
-let flightPlans = {};
-let selectedId = "";
 
 //Get all flights from API, internal and external.
 async function getFlights() {
@@ -11,10 +9,10 @@ async function getFlights() {
 	const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
 	console.log("getFlights(): fetching flights from " + url);
 	await $.getJSON(url, function (data) {
-		flightList = data;
+		top.glob.flightList = data;
 	}).done(function () {
-		if (Array.isArray(flightList)) {
-			console.log("getFlights(): fetched " + flightList.length + " flights.");
+		if (Array.isArray(top.glob.flightList)) {
+			console.log("getFlights(): fetched " + top.glob.flightList.length + " flights.");
 			renderFlightList();
 		}
 		else {
@@ -28,8 +26,8 @@ async function getFlightPlan(id) {
 	const url = server + "/api/FlightPlan/" + id;
 	console.log("getFlightPlan(): fetching plan for \'" + id + "\' from " + url);
 	await $.getJSON(url, function (data) {
-		flightPlans[id] = data;
-		console.log("getFlightPlan(): fetched plan for \'" + id + "\': " + flightPlans[id]);
+		top.glob.flightPlans[id] = data;
+		console.log("getFlightPlan(): fetched plan for \'" + id + "\': " + top.glob.flightPlans[id]);
 
 		//Make flight selectable
 		const item = $(`#FL-${id}`);
@@ -70,7 +68,7 @@ function renderFlightList() {
 	internalList.className = "list-group";
 	const externalList = document.createElement('ul');
 	externalList.className = "list-group";
-	flightList.forEach((fl) => {
+	top.glob.flightList.forEach((fl) => {
 		const item = document.createElement('li');
 		const id = fl.flight_id;
 		getFlightPlan(id)
@@ -106,8 +104,8 @@ function clearFlightDetails() {
 }
 function renderFlightDetails() {
 	clearFlightDetails();
-	if (selectedId != "") {
-		console.log(`renderFlightDetails(): showing details for '${selectedId}'`);
+	if (top.glob.selectedId != "") {
+		console.log(`renderFlightDetails(): showing details for '${top.glob.selectedId}'`);
 		const detailsBox = $('#fw-details');
 		const table = document.createElement("table");
 		table.id = "fd-table";
@@ -124,14 +122,14 @@ function renderFlightDetails() {
 	detailsBox.append(table);
 	const fd_top = $("#fd-top");
 	const fd_details = $("#fd-details");
-		const plan = flightPlans[selectedId];
+		const plan = top.glob.flightPlans[top.glob.selectedId];
 		const start_p = plan.initial_location;
 		const end_p= plan.segments[plan.segments.length-1];
 		//calculate the required details and match to keys in dict array
 		const details = [
 			{
 				name: "ID",
-				value: selectedId
+				value: top.glob.selectedId
 			},
 			{
 				name: "Company",
@@ -174,24 +172,24 @@ function removeFlight(id) {
 
 //Logic Functions ######
 function deSelectFlight() {
-	if (selectedId != "") {
+	if (top.glob.selectedId != "") {
 		try {
-			$('#FL-' + selectedId).removeClass('active');
-			console.log(`deSelectFlight(): deselected flight ${selectedId}`);
+			$('#FL-' + top.glob.selectedId).removeClass('active');
+			console.log(`deSelectFlight(): deselected flight ${top.glob.selectedId}`);
 		}
 		finally {
-			selectedId = "";
+			top.glob.selectedId = "";
 		}
 	}
 }
 
 function selectFlight(id) {
-	const current_selected = selectedId;
+	const current_selected = top.glob.selectedId;
 	deSelectFlight();
 	if (id != current_selected) {
-		selectedId = id;
-		console.log(`selectFlight(): selected flight ${selectedId}`);
-		$('#FL-' + selectedId).addClass('active');
+		top.glob.selectedId = id;
+		console.log(`selectFlight(): selected flight ${top.glob.selectedId}`);
+		$('#FL-' + top.glob.selectedId).addClass('active');
 	}
 	renderFlightDetails();
 }
