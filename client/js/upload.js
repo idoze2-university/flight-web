@@ -1,21 +1,27 @@
-    let dropZone = $('#drop-zone');
+//preventing page from redirecting when file drops
+$("html").on("dragover", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $('#fw-upload').addClass('drop');
+});
+$("html").on("drop", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+});
 
-    let startUpload = function (files) {
-        console.log(files)
-    }
+let fwUpload = $('#fw-upload');
 
-    dropZone.ondrop = function (e) {
-        e.preventDefault();
-        this.className = 'upload-drop-zone';
-        startUpload(e.dataTransfer.files)
-    }
+let startUpload = function (files) {
+    console.log(files)
+}
 
-    dropZone.ondragover = function () {
-        this.className = 'upload-drop-zone drop';
-        return false;
-    }
+$("#fw-upload").on("drop", function (e) {
+    this.className = 'upload-drop-zone';
+    startUpload(e.dataTransfer.files)
+});
 
-    dropZone.ondragleave = function () {
-        this.className = 'upload-drop-zone';
-        return false;
-    }
+fwUpload.ondragleave = function () {
+    this.className = 'upload-drop-zone';
+    return false;
+}
+

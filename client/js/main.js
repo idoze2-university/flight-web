@@ -5,9 +5,9 @@ let selectedFlight = "";
 
 //Get all flights from API, internal and external.
 async function getFlights() {
-	const time = new Date().toISOString();
-	// const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
-	const url = 'http://rony3.atwebpages.com/api/Flights?relative_to=2020-12-26T23:56:21Z&sync_all';
+	let time = new Date().toISOString();
+	time = "2020-12-26T23:56:21Z"; //for debugging
+	const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
 	console.log("getFlights(): fetching flights from " + url);
 	await $.getJSON(url, function (data) {
 		console.log("getFlights(): fetched " + data.length + " flights.");
@@ -23,8 +23,8 @@ async function getFlightPlan(id) {
 	console.log("getFlightPlan(): fetching plan for \'" + id + "\' from " + url);
 	await $.getJSON(url, function (data) {
 		flightPlans[id] = data;
-		console.log("getFlightPlan(): fetched plan for \'"+id+"\': "+flightPlans[id]);
-		let item = $('#FL-'+id);
+		console.log("getFlightPlan(): fetched plan for \'" + id + "\': " + flightPlans[id]);
+		let item = $('#FL-' + id);
 		item.removeClass('disabled');
 		$(item).on('click', { ID: id }, (event) => {
 			selectFlight(event.data.ID);
@@ -83,6 +83,5 @@ function selectFlight(id) {
 	$('#FL-' + selectedFlight).addClass('active');
 	console.log(flightPlans[id]);
 }
-
 getFlights();
 
