@@ -1,6 +1,6 @@
 .grid-container {
     display              : grid;
-    grid-template-columns: repeat(4, 200px);
+    grid-template-columns: repeat(4, 30%);
     grid-template-rows   : repeat(3, 200px);
     grid-template-areas  : "Map Map Map Board""Map Map Map Board""Details Details Details Upload";
 }
@@ -23,4 +23,11 @@
 .grid-container #fw-details {
     grid-area       : Details;
     background-color: yellow;
+}
+
+.list-group{
+    max-height: 300px;
+    margin-bottom: 10px;
+    overflow:auto;
+    -webkit-overflow-scrolling: touch;
 }
