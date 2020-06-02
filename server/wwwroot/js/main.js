@@ -1,7 +1,8 @@
-const server = ''; // TODO: change to local server
+const server = 'http://rony3.atwebpages.com'; // TODO: change to local server
+// const server= '';
 let flightList = [];
 let flightPlans = {};
-let selectedFlight = "";
+let selectedId = "";
 
 //Get all flights from API, internal and external.
 async function getFlights() {
@@ -49,6 +50,9 @@ async function getFlightPlan(id) {
 async function deleteFlight(id) {
 	const url = server + "/api/Flights/" + id;
 	console.log(`deleteFlight(): deleting flight '${id}' `);
+	$(`#FL-${id}`).addClass('disabled');
+	$(`#DEL-${id}`).addClass('disabled');
+	clearFlightDetails();
 	await $.ajax(
 		{
 			url: url,
@@ -77,6 +81,7 @@ function renderFlightList() {
 		`;
 		item.innerHTML += fl.is_external ? '' : `<li class="list-inline-item"><button class="btn btn-danger btn-sm rounded-0 disabled" id="DEL-${id}" type="button" data-placement="top" title="Delete">X</button></li>`;
 		(fl.is_external ? externalList : internalList).append(item);
+		//TODO: Test external flights UI.
 	});
 	const header_type = 'h3';
 	if (internalList.children.length > 0) {
@@ -93,11 +98,72 @@ function renderFlightList() {
 	}
 }
 
+
+function clearFlightDetails() {
+	console.log("clearFlightDetails(): clearing details");
+	const table = $('#fd-table');
+	table.remove();
+}
 function renderFlightDetails() {
-	const detailsBox = $('#fw-details');
-	const fd_id = document.createElement("div");
-	fd_id.className = "";
-	detailsBox.append();
+	clearFlightDetails();
+	if (selectedId != "") {
+		console.log(`renderFlightDetails(): showing details for '${selectedId}'`);
+		const detailsBox = $('#fw-details');
+		const table = document.createElement("table");
+		table.id = "fd-table";
+		table.className = "table";
+		table.style="text-align:center;";
+		table.innerHTML = `
+	<thead>
+    <tr id ="fd-top"></tr>
+	</thead>
+	<tbody>
+	<tr id="fd-details"></tr>
+	</tbody>
+	`
+	detailsBox.append(table);
+	const fd_top = $("#fd-top");
+	const fd_details = $("#fd-details");
+		const plan = flightPlans[selectedId];
+		const start_p = plan.initial_location;
+		const end_p= plan.segments[plan.segments.length-1];
+		//calculate the required details and match to keys in dict array
+		const details = [
+			{
+				name: "ID",
+				value: selectedId
+			},
+			{
+				name: "Company",
+				value: plan.company_name
+			},
+			{
+				name: "# Passengers",
+				value: plan.passengers
+			},
+			{
+				name: "Start Point",
+				value: `${start_p.longitude}/${start_p.latitude}`
+			},
+			{
+				name: "End Point",
+				value: `${end_p.longitude}/${end_p.latitude}`
+			},
+		]
+		//Add values as table;
+		for (var item of details) {
+			const key = item['name'];
+			const val = item['value'];
+			const key_elem = document.createElement("th");
+			key_elem.scope = "row";
+			key_elem.innerHTML = key;
+			const val_elem = document.createElement("td");
+			val_elem.scope = "row";
+			val_elem.innerHTML = val;
+			fd_top.append(key_elem);
+			fd_details.append(val_elem);
+		}
+	}
 }
 
 function removeFlight(id) {
@@ -108,21 +174,25 @@ function removeFlight(id) {
 
 //Logic Functions ######
 function deSelectFlight() {
-	if (selectedFlight != "") {
+	if (selectedId != "") {
 		try {
-			$('#FL-' + selectedFlight).removeClass('active');
-			console.log(`deSelectFlight(): deselected flight ${selectedFlight}`);
+			$('#FL-' + selectedId).removeClass('active');
+			console.log(`deSelectFlight(): deselected flight ${selectedId}`);
 		}
 		finally {
-			selectedFlight = "";
+			selectedId = "";
 		}
 	}
 }
 
 function selectFlight(id) {
+	const current_selected = selectedId;
 	deSelectFlight();
-	selectedFlight = id;
-	$('#FL-' + selectedFlight).addClass('active');
+	if (id != current_selected) {
+		selectedId = id;
+		console.log(`selectFlight(): selected flight ${selectedId}`);
+		$('#FL-' + selectedId).addClass('active');
+	}
 	renderFlightDetails();
 }
 getFlights();
