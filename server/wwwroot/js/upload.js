@@ -1,3 +1,5 @@
+
+//TODO: Finish Upload
 //preventing page from redirecting when file drops
 $("html").on("dragover", function (e) {
     e.preventDefault();
@@ -9,7 +11,6 @@ $("html").on("drop", function (e) {
     e.preventDefault();
     e.stopPropagation();
     $('#fw-upload').removeClass('drop');
-    // console.log(e);
     ajax_upload(e.originalEvent.dataTransfer.files);
 });
 $("html").on("dragleave", function (e) {
