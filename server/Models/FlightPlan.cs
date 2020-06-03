@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace FlightRadar.Models
 {
@@ -13,7 +14,7 @@ namespace FlightRadar.Models
         public long id { get; set; }
         public string flight_id { get; set; }
         public int passengers { get; set; }
-        public string Company_name { get; set; }
+        public string company_name { get; set; }
 
         public Location initial_location { get; set; } //Not saved in DB
 
@@ -233,6 +234,45 @@ namespace FlightRadar.Models
                 current_latitude = next_latitude;
             }
             return true;
+        }
+        public void BuildExternal(JObject json_plan_object,string flight_id)
+        {
+            int seg_field = 0;
+            id = 1;
+            bool first = true;
+            this.flight_id = flight_id;
+            passengers = Convert.ToInt32(json_plan_object["passengers"].ToString());
+            company_name = json_plan_object["company_name"].ToString();
+            JToken initial_location = json_plan_object["initial_location"];
+            foreach(JProperty prop in initial_location)
+            {
+                if(prop.Name == "longitude") { initial_location_longitude = Convert.ToDouble(prop.Value.ToString()); }
+                else if(prop.Name == "latitude") { initial_location_latitude = Convert.ToDouble(prop.Value.ToString()); }
+                else if(prop.Name == "date_time") { initial_location_date_time = prop.Value.ToString(); }
+            }
+            segments_string = "[";
+            JToken segments = json_plan_object["segments"];
+            foreach(JObject segment in segments)
+            {
+                if (!first)
+                {
+                    segments_string += ",";
+                }
+                segments_string += "{";
+                foreach(KeyValuePair<string,JToken> entry in segment)
+                {
+                    segments_string += entry.Value.ToString();
+                    if (seg_field != 2)
+                    {
+                        segments_string += ",";
+                    }
+                    seg_field++;
+                }
+                segments_string += "}";
+                seg_field = 0;
+                first = false;
+            }
+            segments_string += "]";
         }
     }
 }
