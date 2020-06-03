@@ -36,7 +36,8 @@ namespace FlightRadar.Controllers
 
             GetLocalFlights(query["relative_to"].ToString());
 
-            if (query.Count == 2) {
+            if (query.Count == 2)
+            {
                 GetExternalFlights(query["relative_to"].ToString());
             }
 
@@ -69,20 +70,24 @@ namespace FlightRadar.Controllers
 
         public bool isValidQuery(IQueryCollection queries)
         {
-            if(queries.Count == 0)
-                return false;
-            if(queries.Count == 1)
+            if (queries.Count == 0)
             {
-                foreach(var key in queries.Keys)
+                return false;
+            }
+            if (queries.Count == 1)
+            {
+                foreach (var key in queries.Keys)
                 {
-                    if(key != "relative_to")
-                           return false;                    
+                    if (key != "relative_to")
+                    {
+                        return false;
+                    }
                     string time = queries["relative_to"].ToString();
                     try
                     {
                         Tools.FormatDateTime(time);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         if (e != null)                       
                             return false;                       
@@ -96,7 +101,9 @@ namespace FlightRadar.Controllers
                 {
                     if (i == 1 && key != "relative_to")
                         return false;
-                    if(i == 2 && key != "sync_all")
+                    }
+                    if (i == 2 && key != "sync_all")
+                    {
                         return false;
                     i++;
                 }
@@ -130,8 +137,9 @@ namespace FlightRadar.Controllers
             }
         }
 
-        public async void GetExternalFlights(string time) {
-            List <JObject> jsons = new List <JObject> ();
+        public async void GetExternalFlights(string time)
+        {
+            List<JObject> jsons = new List<JObject>();
             var servers = _context.servers;
             string content = "";
             foreach (Server server in servers)
@@ -141,13 +149,20 @@ namespace FlightRadar.Controllers
                 var client = new WebClient();
                 string request = "http://" + site + "/api/Flights?relative_to=";
                 request += time;
-                content = content + client.DownloadString(request);
+                try
+                {
+                    content = content + client.DownloadString(request);
+                }
+                catch (System.Net.WebException)
+                {
+                    continue;
+                }
             }
             content = content.Replace("\n", "").Replace("\t", "").Replace("\r", "");
             jsons = Tools.Strings_to_Jsons(content);
             long external_flight_id = 1;
             bool build_succesfull;
-            foreach(var json in jsons)
+            foreach (var json in jsons)
             {
                 Flight flight = new Flight();
                 build_succesfull = flight.BuildExternal(json, external_flight_id);

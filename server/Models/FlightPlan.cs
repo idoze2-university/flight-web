@@ -77,7 +77,7 @@ namespace FlightRadar.Models
             final_location.latitude = this.segments.Last().latitude;
             myDate = myDate.AddSeconds(this.TotalFlightTime());
             final_location.date_time = Tools.ReformatDateTime(myDate);
-            this.final_location = final_location;      
+            this.final_location = final_location;
         }
 
         //Input: DB context
