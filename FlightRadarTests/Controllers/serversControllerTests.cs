@@ -14,7 +14,7 @@ namespace FlightRadar.Controllers.Tests
     {
 
         [TestMethod]
-        public void BuildLocalTest_TwoSameFlight_ReturnsTrue_()
+        public void BuildLocalTest_BuildSuccesfull_ReturnsTrue_()
         {
             //arrange
             FlightPlan plan = new FlightPlan();
@@ -40,7 +40,7 @@ namespace FlightRadar.Controllers.Tests
         }
 
         [TestMethod]
-        public void GetServersList_SameServers_ReturnsTrue()
+        public void GetServersList_ServerInserted_ReturnsTrue()
         {
             // Arrange
             DbContextOptions<DataContext> options = new DbContextOptions<DataContext>();
