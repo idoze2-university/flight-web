@@ -26,7 +26,7 @@
 }
 
 .list-group{
-    max-height: 300px;
+    max-height:  150px;
     margin-bottom: 10px;
     overflow:auto;
     -webkit-overflow-scrolling: touch;
