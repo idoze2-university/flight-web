@@ -1,7 +1,7 @@
 
 
-const server = 'http://rony3.atwebpages.com'; // TODO: change to local server
-// const server= '';
+// const server = 'http://rony3.atwebpages.com'; // TO-DO: change to local server
+const server = '';
 let flightList = {};
 let flightPlans = {};
 let flightMarkers = {};
@@ -9,16 +9,22 @@ let selectedId = "";
 let map = 0;
 let selectedFlightPath = 0;
 
-
 function main() {
 	console.log("Starting main.js...");
+	initDragAndDrop();
+	renderFlightDetails();
+	renderFlightList();
 	getFlights();
 }
 
 //Get all flights from API, internal and external.
 async function getFlights() {
-	let time = new Date().toISOString(); // TODO: change to const
-	time = "2020-12-26T23:56:21Z"; // TODO: remove
+	const header_type = 'h3';
+	const header = document.createElement(header_type);
+	header.innerHTML = "Scanning for flights...";
+	$('#fw-board-in').append(header);
+	const time = new Date().toISOString().split('.')[0] + "Z"; // TO-DO: change to const
+	// time = "2020-12-26T23:56:21Z"; // TO-DO: remove
 	const url = server + "/api/Flights?relative_to=" + time + "&sync_all";
 	console.log("getFlights(): fetching flights from " + url);
 	await $.getJSON(url, function (data) {
@@ -28,15 +34,14 @@ async function getFlights() {
 			const id = flight.flight_id;
 			flightList[id] = flight;
 		}
-		console.log(flightList);
 	}).done(function () {
-		if (flightList != {}) {
-			console.log("getFlights(): fetched " + flightList.length + " flights.");
-			renderFlightList();
+		if (Object.keys(flightList).length > 0) {
+			console.log("getFlights(): fetched " + Object.keys(flightList).length + " flights.");
 		}
 		else {
 			console.log("getFlights(): fetched " + 0 + " flights.")
 		}
+		renderFlightList();
 	});
 };
 
@@ -64,6 +69,28 @@ async function getFlightPlan(id) {
 	});
 }
 
+function refreshFlightList() {
+	getFlights();
+}
+
+async function postFlight(f) {
+	const url = server + "/api/FlightPlan";
+	console.log(`postFlight(): posting a new flight`);
+	await $.ajax(
+		{
+			url: url,
+			data: JSON.stringify(f),
+			contentType: 'application/json',
+			type: 'POST',
+			dataType: 'json',
+			processData: false,
+			success: function (data) {
+				console.log(`postFlight(): successfuly created flight '${data}'`);
+			},
+		});
+	refreshFlightList();
+}
+
 async function deleteFlight(id) {
 	const url = server + "/api/Flights/" + id;
 	console.log(`deleteFlight(): deleting flight '${id}' `);
@@ -78,60 +105,69 @@ async function deleteFlight(id) {
 				console.log(`deleteFlight(): successfuly deleted flight '${id}'`);
 				removeFlight(id);
 				removeMarker(id);
+				initMap();
+				getFlights();
 			},
 		});
 }
 
 
 function clearFlightList() {
-	console.log("clearFlightList(): clearing details");
-	$("#fw-board").innerHTML = `
-	<div id="fw-board-in"></div>
-	<div id="fw-board-ex"></div>
-	`
+	console.log("clearFlightList(): clearing list");
+	$("#fw-board-in").empty();
+	$("#fw-board-ex").empty();
 }
 //Renders the flight (in and ex) list.
 function renderFlightList() {
 	clearFlightList();
-	const internalList = document.createElement('ul');
-	internalList.className = "list-group";
-	const externalList = document.createElement('ul');
-	externalList.className = "list-group";
-	for (const key in flightList) {
-		const fl = flightList[key];
-		const item = document.createElement('li');
-		const id = fl.flight_id;
-		getFlightPlan(id).then(() => {
-			addFlightMarker(id);
-		});
-		item.className = "fl-item list-group-item list-group-item-action primary disabled";
-		item.id = "FL-" + id;
-		item.innerHTML = ` <ul class="list-inline m-0" style="text-align:center;">
+	if (Object.keys(flightList).length > 0) {
+		const internalList = document.createElement('ul');
+		internalList.className = "list-group";
+		const externalList = document.createElement('ul');
+		externalList.className = "list-group";
+		for (const key in flightList) {
+			const fl = flightList[key];
+			const item = document.createElement('li');
+			const id = fl.flight_id;
+			getFlightPlan(id).then(() => {
+				addFlightMarker(id);
+			});
+			item.className = "fl-item list-group-item list-group-item-action primary disabled";
+			item.id = "FL-" + id;
+			item.innerHTML = ` <ul class="list-inline m-0" style="text-align:center;">
 		<li class="list-inline-item">${id} | ${fl.company_name}</li>
 		`;
-		item.innerHTML += fl.is_external ? '' : `<li class="list-inline-item"><button class="btn btn-danger btn-sm rounded-0 disabled" id="DEL-${id}" type="button" data-placement="top" title="Delete">X</button></li>`;
-		(fl.is_external ? externalList : internalList).append(item);
-		//TODO: Test external flights UI.
+			item.innerHTML += fl.is_external ? '' : `<li class="list-inline-item"><button class="btn btn-danger btn-sm rounded-0 disabled" id="DEL-${id}" type="button" data-placement="top" title="Delete">X</button></li>`;
+			(fl.is_external ? externalList : internalList).append(item);
+			//TO-DO: Test external flights UI.
+		}
+		const header_type = 'h3';
+		if (internalList.children.length > 0) {
+			let header = document.createElement(header_type);
+			header.innerHTML = "Internal Flights:";
+			$('#fw-board-in').append(header);
+			$('#fw-board-in').append(internalList);
+		}
+		if (externalList.children.length > 0) {
+			const header = document.createElement(header_type);
+			header.innerHTML = "External Flights:";
+			$('#fw-board-ex').append(header);
+			$('#fw-board-ex').append(externalList);
+		}
 	}
-	const header_type = 'h3';
-	if (internalList.children.length > 0) {
-		let header = document.createElement(header_type);
-		header.innerHTML = "Internal Flights:";
+	else {
+		const header_type = 'h3';
+		const header = document.createElement(header_type);
+		header.innerHTML = "No Flights Found.";
 		$('#fw-board-in').append(header);
-		$('#fw-board-in').append(internalList);
 	}
-	if (externalList.children.length > 0) {
-		let header = document.createElement(header_type);
-		header.innerHTML = "External Flights:";
-		$('#fw-board-ex').append(header);
-		$('#fw-board-ex').append(externalList);
-	}
+
 }
 
 function clearFlightDetails() {
 	console.log("clearFlightDetails(): clearing details");
-	const table = $('#fd-table');
-	table.remove();
+	const details = $('#fw-details');
+	details.empty();
 }
 function renderFlightDetails() {
 	clearFlightDetails();
@@ -155,35 +191,10 @@ function renderFlightDetails() {
 		const fd_top = $("#fd-top");
 		const fd_details = $("#fd-details");
 		const plan = flightPlans[selectedId];
-		const start_p = plan.initial_location;
-		const end_p = plan.segments[plan.segments.length - 1];
-		//calculate the required details and match to keys in dict array
-		const details = [
-			{
-				name: "ID",
-				value: selectedId
-			},
-			{
-				name: "Company",
-				value: plan.company_name
-			},
-			{
-				name: "# Passengers",
-				value: plan.passengers
-			},
-			{
-				name: "Start Point",
-				value: `${start_p.longitude}/${start_p.latitude}`
-			},
-			{
-				name: "End Point",
-				value: `${end_p.longitude}/${end_p.latitude}`
-			},
-		]
+		const details = generatePlanDetails(plan)
 		//Add values as table;
 		for (var item of details) {
-			const key = item['name'];
-			const val = item['value'];
+			const key = item['name']; const val = item['value'];
 			const key_elem = document.createElement("th");
 			key_elem.scope = "row";
 			key_elem.innerHTML = key;
@@ -194,6 +205,42 @@ function renderFlightDetails() {
 			fd_details.append(val_elem);
 		}
 	}
+	else {
+		const detailsBox = $('#fw-details');
+		const msg = document.createElement("h3");
+		msg.style = "text-align:center;";
+		msg.innerHTML = "Please select a flight from the list or the map.";
+		detailsBox.append(msg);
+	}
+}
+
+function generatePlanDetails(plan) {
+	const start_p = plan.initial_location;
+	const end_p = plan.segments[plan.segments.length - 1];
+	//calculate the required details and match to keys in dict array
+	const details = [
+		{
+			name: "ID",
+			value: selectedId
+		},
+		{
+			name: "Company",
+			value: plan.company_name
+		},
+		{
+			name: "# Passengers",
+			value: plan.passengers
+		},
+		{
+			name: "Start Point",
+			value: `${start_p.longitude}/${start_p.latitude}`
+		},
+		{
+			name: "End Point",
+			value: `${end_p.longitude}/${end_p.latitude}`
+		},
+	]
+	return details;
 }
 
 function removeFlight(id) {
@@ -214,6 +261,7 @@ function deSelectFlight() {
 			selectedId = "";
 		}
 	}
+	renderFlightDetails();
 }
 
 function selectFlight(id) {
@@ -233,6 +281,7 @@ function selectFlight(id) {
 // API KEY : AIzaSyAuJs-6qtB_AgqXqO2ScPtE5W9RumFDelg
 
 function initMap() {
+	$("#map_elem").remove();
 	const map_elem = document.createElement("div");
 	map_elem.id = "map_elem";
 	const options = {
@@ -241,6 +290,10 @@ function initMap() {
 		center: { lat: 10, lng: 10 },
 	};
 	map = new google.maps.Map(map_elem, options);
+	for (const markerKey in flightMarkers) {
+		const marker = flightMarkers[markerKey];
+		marker.setMap(map);
+	}
 	$("#fw-map").append(map_elem);
 }
 
@@ -327,9 +380,52 @@ function renderSelectedFlightPath() {
 }
 
 function clearSelectedFlightPath() {
-	if (selectedFlightPath!=0) {
+	if (selectedFlightPath != 0) {
 		selectedFlightPath.setMap(null);
 	}
 	selectedFlightPath = 0;
 }
-main();
+
+function initDragAndDrop() {
+	function handleDrag(e) {
+		$("#fw-upload").addClass('drop');
+		e.stopPropagation();
+		e.preventDefault();
+		e.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+	}
+
+	function handleDrop(e) {
+		$("#fw-upload").removeClass('drop');
+		e.stopPropagation();
+		e.preventDefault();
+		let json_file = e.dataTransfer.files[0];
+		if (json_file.type.match('application/json')) {
+			var reader = new FileReader();
+			reader.onload = (function (theFile) {
+				return function (e) {
+					const parsed_json = JSON.parse(e.target.result);
+					postFlight(parsed_json);
+				};
+			})(json_file);
+			reader.readAsText(json_file);
+		}
+		else {
+			alert("Please upload a valid JSON File!");
+		}
+	}
+
+	let dropZone = document.getElementById('fw-upload');
+	dropZone.addEventListener('dragover', handleDrag, false);
+	dropZone.addEventListener('draglen promiseave', function (evt) { $("#fw-upload").removeClass('drop'); }, false);
+	dropZone.addEventListener('drop', handleDrop, false);
+
+	let doc = document.getElementsByTagName("html")[0];
+	doc.addEventListener('drop', function (e) {
+		e.stopPropagation();
+		e.preventDefault();
+	}, false);
+}
+
+$(document).ready(function () {
+	main();
+});

@@ -25,9 +25,13 @@
     background-color: yellow;
 }
 
-.list-group{
-    max-height:  150px;
-    margin-bottom: 10px;
-    overflow:auto;
+.list-group {
+    max-height                : 150px;
+    margin-bottom             : 10px;
+    overflow                  : auto;
     -webkit-overflow-scrolling: touch;
+}
+
+#fw-upload.drop {
+    border: 2px dashed black;
 }
