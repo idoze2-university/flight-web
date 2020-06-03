@@ -12,9 +12,5 @@ namespace FlightRadar.Models
         public DbSet<FlightPlan> FlightPlans { get; set; }
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Server> servers { get; set; }
-
-        public void Add() { }
-        public void Get() { }
-        public void Delete() { }
     }
 }

@@ -142,7 +142,7 @@ namespace FlightRadar.Controllers
             }
         }
 
-        public void GetExternalFlights(string time) {
+        public async void GetExternalFlights(string time) {
             List <JObject> jsons = new List <JObject> ();
             var servers = _context.servers;
             string content = "";
@@ -158,12 +158,17 @@ namespace FlightRadar.Controllers
             content = content.Replace("\n", "").Replace("\t", "").Replace("\r", "");
             jsons = Tools.Strings_to_Jsons(content);
             long external_flight_id = 1;
+            bool build_succesfull;
             foreach(var json in jsons)
             {
                 Flight flight = new Flight();
-                flight.BuildExternal(json, external_flight_id);
-                _context.Flights.Add(flight);
-                external_flight_id++;
+                build_succesfull = flight.BuildExternal(json, external_flight_id);
+                if (build_succesfull)
+                {
+                    _context.Flights.Add(flight);
+                    await _context.SaveChangesAsync();
+                    external_flight_id++;
+                }
             }
         }
     }

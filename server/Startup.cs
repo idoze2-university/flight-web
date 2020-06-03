@@ -39,10 +39,7 @@ namespace FlightRadar
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseDefaultFiles(new DefaultFilesOptions { DefaultFileNames = new List<string> { "index.html" } });
-            app.UseStaticFiles(
-                /*new StaticFileOptions {FileProvider = new PhysicalFileProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "myStaticFolder")),}*/
-                // TODO: Install Package called StaticFiles for integration.
-            );
+            app.UseStaticFiles();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
