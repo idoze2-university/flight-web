@@ -89,10 +89,8 @@ namespace FlightRadar.Controllers
                     }
                     catch (Exception e)
                     {
-                        if (e != null)
-                        {
-                            return false;
-                        }
+                        if (e != null)                       
+                            return false;                       
                     }
                 }
             }
@@ -102,13 +100,11 @@ namespace FlightRadar.Controllers
                 foreach (var key in queries.Keys)
                 {
                     if (i == 1 && key != "relative_to")
-                    {
                         return false;
                     }
                     if (i == 2 && key != "sync_all")
                     {
                         return false;
-                    }
                     i++;
                 }
                 string time = queries["relative_to"].ToString();
@@ -119,9 +115,7 @@ namespace FlightRadar.Controllers
                 catch (Exception e)
                 {
                     if (e != null)
-                    {
                         return false;
-                    }
                 }
             }
             return true;

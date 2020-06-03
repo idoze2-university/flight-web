@@ -17,25 +17,13 @@ namespace FlightRadar.Models
             int i = 0;
             List<SegmentClient> segmentsClient = new List<SegmentClient>();
             SegmentClient segmentClient = null;
-            //Empty string
             if(segments_string == null || segments_string == "")
-            {
                 return segmentsClient;
-            }
-            //In : "[{x,y,z},{x,y,z}...]" Out: "{x,y,z},{x,y,z}..."
             segments_string = segments_string.Replace("[", "").Replace("]", "");
-
-            //In : "{x,y,z},{x,y,z}..." Out : "x,y,z,x,y,z..."
             segments_string = segments_string.Replace("{", "").Replace("}", "");
-
-            //In :"x,y,z,x,y,z..." Out: [x,y,z,x,y,z...]
             string[] words = segments_string.Split(',');
-
-            //No segments
             if (words.Length == 1)
-            {
                 return segmentsClient;
-            }
             foreach (string word in words)
             {
                 if (i % 3 == 0) //Longitude (start of new segment)
@@ -44,9 +32,7 @@ namespace FlightRadar.Models
                     segmentClient.longitude = Convert.ToDouble(word);
                 }
                 else if (i % 3 == 1) //Latitude
-                {
                     segmentClient.latitude = Convert.ToDouble(word);
-                }
                 else if (i % 3 == 2) //time_span (end of segment)
                 {
                     segmentClient.timespan_seconds = Convert.ToDouble(word);
