@@ -86,14 +86,10 @@ namespace FlightRadar.Models
         public bool set(DataContext context)
         {
             if (!isValidPlan())
-            {
                 return false;
-            }
             bool succeded = this.GenerateFlightId(context);
             if (!succeded)
-            {
                 return false;
-            }
             this.GetFinalLocation();
             initial_location_longitude = initial_location.longitude;
             initial_location_latitude = initial_location.latitude;
@@ -108,10 +104,10 @@ namespace FlightRadar.Models
             foreach(Segment e in segments)
             {
                 if (!first)
-                {
                     segments_string += ",";
-                }
-                segments_string += "{" + e.longitude.ToString() + "," + e.latitude.ToString() + "," + e.timespan_seconds.ToString() + "}";
+                segments_string += "{" + e.longitude.ToString() + "," + 
+                    e.latitude.ToString() + "," +
+                    e.timespan_seconds.ToString() + "}";
                 first = false;
             }
             segments_string += "]";
@@ -170,37 +166,37 @@ namespace FlightRadar.Models
                     time_passed -= segment.timespan_seconds;
                     start_segment = next_segment;
                 }
-                //time_passed < segment.timespan, therefore segment.timespan !=0
-                //SEG1-----------------------------------------SEG2//
-                //SEG1-------------^^^-------------------------SEG2//
                 else
                 {
                     double d = Tools.getDistance(next_segment, start_segment); //Positive
-                    //Waiting in position
                     if(d == 0)
                     {
-                        coordinates = new Tuple<double, double>(start_segment.longitude, start_segment.latitude);
+                        coordinates = new Tuple<double, double>
+                            (start_segment.longitude, start_segment.latitude);
                         return coordinates;
                     }
                     double speed = d / next_segment.timespan_seconds;
                     double k = speed * time_passed;
                     double l = d - k;
 
-                    double longitude = (l * start_segment.longitude + k * next_segment.longitude) / d;
+                    double longitude = (l * start_segment.longitude + 
+                        k * next_segment.longitude) / d;
 
-                    double latitude = (l * start_segment.latitude + k * next_segment.latitude) / d;
+                    double latitude = (l * start_segment.latitude + 
+                        k * next_segment.latitude) / d;
                     coordinates = new Tuple<double, double>(longitude, latitude);
                     return coordinates;
                 }
             }
             if (hasNoSegments)
             {
-                coordinates = new Tuple<double, double>(initial_location_longitude, initial_location_latitude);
+                coordinates = new Tuple<double, double>
+                    (initial_location_longitude, initial_location_latitude);
             }
-            //In case has no segments flight is already finished
             else
             {
-                coordinates = new Tuple<double, double>(start_segment.longitude, start_segment.latitude);
+                coordinates = new Tuple<double, double>
+                    (start_segment.longitude, start_segment.latitude);
             }
             return coordinates;
         }
@@ -226,7 +222,8 @@ namespace FlightRadar.Models
                 double next_longitude = segment.longitude;
                 double next_latitude = segment.latitude;
                 double time_span = segment.timespan_seconds;
-                if(time_span == 0 && (current_latitude != next_latitude || current_longitude != next_longitude))
+                if(time_span == 0 && 
+                    (current_latitude != next_latitude || current_longitude != next_longitude))
                 {
                     return false;
                 }
@@ -246,26 +243,25 @@ namespace FlightRadar.Models
             JToken initial_location = json_plan_object["initial_location"];
             foreach(JProperty prop in initial_location)
             {
-                if(prop.Name == "longitude") { initial_location_longitude = Convert.ToDouble(prop.Value.ToString()); }
-                else if(prop.Name == "latitude") { initial_location_latitude = Convert.ToDouble(prop.Value.ToString()); }
-                else if(prop.Name == "date_time") { initial_location_date_time = prop.Value.ToString(); }
+                if(prop.Name == "longitude") 
+                    initial_location_longitude = Convert.ToDouble(prop.Value.ToString());                 
+                else if(prop.Name == "latitude") 
+                    initial_location_latitude = Convert.ToDouble(prop.Value.ToString()); 
+                else if(prop.Name == "date_time") 
+                    initial_location_date_time = prop.Value.ToString(); 
             }
             segments_string = "[";
             JToken segments = json_plan_object["segments"];
             foreach(JObject segment in segments)
             {
-                if (!first)
-                {
-                    segments_string += ",";
-                }
+                if (!first)                
+                    segments_string += ",";                
                 segments_string += "{";
                 foreach(KeyValuePair<string,JToken> entry in segment)
                 {
                     segments_string += entry.Value.ToString();
-                    if (seg_field != 2)
-                    {
-                        segments_string += ",";
-                    }
+                    if (seg_field != 2)                    
+                        segments_string += ",";                    
                     seg_field++;
                 }
                 segments_string += "}";

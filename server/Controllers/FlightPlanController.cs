@@ -49,9 +49,7 @@ namespace FlightRadar.Controllers
             {
                 flightPlan = GetExternalFlightPlan(id);
                 if (flightPlan == null)
-                {
                     return NotFound();
-                }
             }
             FlightPlanClient clientData = new FlightPlanClient();
             clientData.Build(flightPlan);

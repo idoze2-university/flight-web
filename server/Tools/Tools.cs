@@ -26,7 +26,9 @@ namespace FlightRadar
             string date = PadZero(myDate.Year.ToString()) + "-";
             date += PadZero(myDate.Month.ToString()) + "-";
             date += PadZero(myDate.Day.ToString()) + "T";
-            date += PadZero(myDate.Hour.ToString()) + ":" + PadZero(myDate.Minute.ToString()) + ":" + PadZero(myDate.Second.ToString()) + "Z";
+            date += PadZero(myDate.Hour.ToString()) + ":" + 
+                PadZero(myDate.Minute.ToString()) + ":" + 
+                PadZero(myDate.Second.ToString()) + "Z";
             return date;
         }
 
@@ -44,7 +46,9 @@ namespace FlightRadar
         //Output: Time in Datetime format
         public static DateTime FormatDateTime(string time)
         {
-            var x = DateTime.ParseExact(time, "yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture).ToUniversalTime();
+            var x = DateTime.ParseExact
+                (time, "yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture)
+                .ToUniversalTime();
             return x;
         }
 
